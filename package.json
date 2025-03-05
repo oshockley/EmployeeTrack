@@ -1,0 +1,19 @@
+{
+  "name": "employeetrack",
+  "version": "1.0.0",
+  "description": "a command-line app to track employees",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oshockley/EmployeeTrack.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oshockley/EmployeeTrack/issues"
+  },
+  "homepage": "https://github.com/oshockley/EmployeeTrack#readme"
+}
