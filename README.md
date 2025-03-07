@@ -21,7 +21,7 @@ This command-line app allows users to manage company data by viewing, adding, an
 
 
 # Walkthrough Video
-- Link to Video: 
+- Link to Video: https://drive.google.com/file/d/1Fngt9ckhMufPeik5wYNErPBzUDnb1d1J/view?usp=sharing 
 
 
 # Questions
