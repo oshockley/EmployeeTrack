@@ -4,7 +4,7 @@ const pool = require("./db");
 //Start up the Application
 function startApp() {
     inquirer
-    .createPromptModule([
+    .prompt([
         {
             type: "list",
             name: "action",
@@ -55,7 +55,7 @@ function startApp() {
 
 //Fucntion for access all departments
 function viewDepartments() {
-    pool.query("SELECT 8 FROM department", (err, res) => {
+    pool.query("SELECT * FROM department", (err, res) => {
         if (err) throw err;
         console.table(res.rows);
         startApp();
@@ -127,7 +127,7 @@ function viewEmployees() {
     COALESCE(m.first_name || ' ' || m.last_name, 'None') AS manager
     FROM employee e
     JOIN role ON e.role_id = role.id
-    JOIN department ON role.department_id = departmet.id
+    JOIN department ON role.department_id = department.id
     LEFT JOIN employee m ON e.manager_id = m.id;
     `;
     pool.query(query, (err, res) => {
@@ -201,25 +201,38 @@ function addEmployee() {
             name: role.title,
             value: role.id,
         }));
-        
-        inquirer
-            .prompt([
-                { type: "input", name: "first_name", message: "Enter employee's first name:" },
-                { type: "input", name: "last_name", message: "Enter employee's last name:" },
-                { type: "list", name: "role_id", message: "Select role:", choices: roleChoices },
-                { type: "input", name: "manager_id", message: "Enter manager ID (leave blank):" },
-            ])
-            .then((answer) => {
-                pool.query(
-                    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)",
-                    [answer.first_name, answer.last_name, answer.role_id, answer.manager_id || null],
-                    (err) => {
-                        if (err) throw err;
-                        console.log("Employee has been added!");
-                        startApp();
-                    }
-                );
-            });
+
+        pool.query("SELECT * FROM employee", (err, employees) => {
+            if (err) throw err;
+
+            const managerChoices = employees.rows.map((emp) => ({
+                name: `${emp.first_name} ${emp.last_name}`,
+                value: emp.id,
+            }));
+            managerChoices.unshift({ name: "None", value: null }); // Allow no manager
+
+            inquirer
+                .prompt([
+                    { type: "input", name: "first_name", message: "Enter employee's first name:" },
+                    { type: "input", name: "last_name", message: "Enter employee's last name:" },
+                    { type: "list", name: "role_id", message: "Select role:", choices: roleChoices },
+                    { type: "list", name: "manager_id", message: "Select manager (or None):", choices: managerChoices },
+                ])
+                .then((answer) => {
+                    // Convert empty manager input to NULL
+                    const manager_id = answer.manager_id ? answer.manager_id : null;
+
+                    pool.query(
+                        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)",
+                        [answer.first_name, answer.last_name, answer.role_id, manager_id],
+                        (err) => {
+                            if (err) throw err;
+                            console.log("Employee has been added!");
+                            startApp();
+                        }
+                    );
+                });
+        });
     });
 }
 
